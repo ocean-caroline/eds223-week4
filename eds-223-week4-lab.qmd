@@ -26,6 +26,7 @@ zion_land <- rast(system.file("raster/nlcd.tif", package = "spDataLarge"))
 # test class of raster object
 class(zion_elevation)
 ```
+
 ```{r}
 map1 <- tm_shape(zion_elevation) +
   tm_raster(title = "Elevation (m)") +
@@ -38,13 +39,11 @@ map2 <- tm_shape(zion_land) +
 tmap_arrange(map1, map2, nrow = 1)
 ```
 
-
 ```{r}
 landsat <- rast(system.file("raster/landsat.tif", package = "spDataLarge")) #tifs can handle image data
 
 nlyr(landsat) # test number of layers in raster object
 ```
-
 
 ```{r}
 
@@ -54,7 +53,6 @@ tm_shape(landsat) +
 #facet plot equivalent
 
 ```
-
 
 ```{r}
 #We can subset layers using either the layer number or name:
@@ -71,7 +69,6 @@ landsat34 <- c(landsat3, landsat4)
 
 ```
 
-
 ```{r}
 #understand our data better
 
@@ -80,8 +77,8 @@ global(zion_elevation, mean)
 freq(zion_land)
 ```
 
-
 ##Indexing
+
 ```{r}
 zion_elevation[1,1] #first cell
 zion_elevation[1]
@@ -96,8 +93,8 @@ test_raster[test_raster < 20] <- NA
 
 ```
 
-
 ##Spatial Subsetting
+
 ```{r}
 point <- matrix(c(-113, 37.5), ncol =2)
 
@@ -119,8 +116,8 @@ tm_shape(zion_elevation_clip) +
   tm_layout(legend.outside = TRUE)
 ```
 
-
 ##Masking
+
 ```{r}
 # create raster mask of the same resolution and extent
 rmask <- zion_elevation
@@ -143,6 +140,7 @@ tm_shape(masked1)+
 ```
 
 ## Local Operations
+
 ```{r}
 #basic arithmetic across the layer
 zion_elevation^2
@@ -198,6 +196,7 @@ tm_shape(ndvi_rast) +
 ```
 
 ## Focal Operations
+
 ```{r}
 elevation_focal <- focal(zion_elevation, 
                          w = matrix(1, nrow = 9, ncol = 9), # create moving window, neighborhood of cells
@@ -224,7 +223,6 @@ map2 <- tm_shape(elevation_focal) +
 tmap_arrange(map1, map2, nrow = 1) 
 ```
 
-
 ## Zonal Operations
 
 ```{r}
@@ -239,10 +237,10 @@ terra::zonal(zion_elevation, reclassified, fun = "mean") %>% #data, group_by/fun
 terra::global(zion_elevation, mean)
 ```
 
-
 # Now We Change Geometries
 
 ## Change the extent
+
 ```{r}
  
 elev <- terra::extend(zion_elevation, c(1, 200))                          
@@ -257,8 +255,8 @@ elev + elev_2 # must match in row and column to do this
 elev_3 <- extend(zion_elevation, elev_2)
 ```
 
-
 ## Orgin
+
 ```{r}
 #The origin function returns the coordinates of the cell corner closes to the coordinates (0,0).
 
@@ -269,11 +267,10 @@ origin(zion_elevation)
 [1] -0.0004165537 -0.0004165677
 ```
 
-
 ##Resolution
 
-###Aggregate
-When decreasing the resolution of rasters, we are effectively combining multiple celss into a single cell. Let’s start by coarsening the resolution of the Zion elevation data by a factor of 5, by taking the mean value of cells.
+###Aggregate When decreasing the resolution of rasters, we are effectively combining multiple celss into a single cell. Let’s start by coarsening the resolution of the Zion elevation data by a factor of 5, by taking the mean value of cells.
+
 ```{r}
 
 zion_elevation_coarse <-  aggregate(zion_elevation,
@@ -294,9 +291,7 @@ map2 <- tm_shape(zion_elevation_coarse) +
 tmap_arrange(map1, map2, nrow = 1) 
 ```
 
-
-###Disaggregate
-To increase the resolution of a raster, we need to break a single cell into multiple cells. There are many ways to do this and the appropriate method will often depend on our specific purpose. However, most approaches define the values of the new (smaller) cells based on not only the value of the original cell they came from, but also neighboring cells.
+###Disaggregate To increase the resolution of a raster, we need to break a single cell into multiple cells. There are many ways to do this and the appropriate method will often depend on our specific purpose. However, most approaches define the values of the new (smaller) cells based on not only the value of the original cell they came from, but also neighboring cells.
 
 ```{r}
 # disaggregate the aggregated raster
@@ -309,7 +304,9 @@ if(identical(zion_elevation, zion_elevation_disagg)){
   warning("disaggregated data does not match original")
 }
 ```
+
 ####Aggregrate vs Disaggregate
+
 ```{r}
 map3 <- tm_shape(zion_elevation_disagg) +
   tm_raster(title = "Elevation (m)") +
@@ -318,7 +315,6 @@ map3 <- tm_shape(zion_elevation_disagg) +
 tmap_arrange(map1, map2, map3, nrow = 1) 
 ```
 
-
 ## Resampling
 
 Aggregation/disaggregation work when both rasters have the same origins.
@@ -326,7 +322,6 @@ Aggregation/disaggregation work when both rasters have the same origins.
 But what do we do in the case where we have two or more rasters with different origins and resolutions? Resampling computes values for new pixel locations based on custom resolutions and origins.
 
 The images below show that we are trying to find the values of the original raster within the cells defined by the new “target” raster. The new values are calculated based on the values of the original raster cells that overlap with the target raster cells.
-
 
 ```{r}
 target_rast <- rast(xmin = -113.2, xmax = -112.9,
@@ -346,6 +341,6 @@ tmap_arrange(map1, map4, nrow = 1)
 ```
 
 
+# Summary of Functions
 
-
-
+![](images/fucntion -documentation-week4-eds223.png)
